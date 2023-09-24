@@ -1,29 +1,25 @@
-import React from "react";
+import React, { useContext } from "react";
 import PokemonType from "../PokemonType";
 import "../App.css";
+import PokemonContext from "./PokemonContext";
 
-const PokemonInfo = ({ name: { english }, base }) => {
-  return (
+const PokemonInfo = () => {
+  const { selectedItem } = useContext(PokemonContext);
+  return selectedItem ? (
     <div>
-      <h1>{english}</h1>
+      <h1>{selectedItem.name.english}</h1>
       <table>
         <tbody>
-          {Object.keys(base).map(
-            (
-              key,
-              i // For base all keys
-            ) => (
-              <tr key={key}>
-                <td>{key}</td>
-                {/* Getting value according to keys */}
-                <td>{base[key]}</td>
-              </tr>
-            )
-          )}
+          {Object.keys(selectedItem.base).map((key) => (
+            <tr key={key}>
+              <td>{key}</td>
+              <td>{selectedItem.base[key]}</td>
+            </tr>
+          ))}
         </tbody>
       </table>
     </div>
-  );
+  ) : null;
 };
 
 PokemonInfo.prototype = PokemonInfo;

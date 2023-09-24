@@ -6,6 +6,8 @@ import PokemonType from "./PokemonType";
 import PokemonInfo from "./components/PokemonInfo";
 import PokemonFilter from "./components/PokemonFilter";
 import PokemonTable from "./components/PokemonTable";
+import PokemonContext from "./components/PokemonContext";
+import { CssBaseline } from "@mui/material";
 
 const Title = styled.h1`
   text-align: center;
@@ -34,22 +36,34 @@ function App() {
       .then((resData) => setPokemon(resData));
   }, []);
 
-  return (
-    <Container>
-      <Title>Pokemon Search</Title>
+  if (!pokemon) {
+    return <div>Loading Data....</div>;
+  }
 
-      <TwoColumnLayout>
-        <div>
-          <PokemonFilter filter={filter} setFilter={setFilter} />
-          <PokemonTable
-            filter={filter}
-            setSelectedItem={setSelectedItem}
-            pokemon={pokemon}
-          />
-        </div>
-        {selectedItem && <PokemonInfo {...selectedItem} />}
-      </TwoColumnLayout>
-    </Container>
+  return (
+    <PokemonContext.Provider
+      value={{
+        filter,
+        setFilter,
+        pokemon,
+        setPokemon,
+        selectedItem,
+        setSelectedItem,
+      }}
+    >
+      <Container>
+        <CssBaseline />
+        <Title>Pokemon Search</Title>
+
+        <TwoColumnLayout>
+          <div>
+            <PokemonFilter />
+            <PokemonTable />
+          </div>
+          <PokemonInfo />
+        </TwoColumnLayout>
+      </Container>
+    </PokemonContext.Provider>
   );
 }
 
