@@ -1,37 +1,42 @@
-import React, { useState, useEffect, useReducer } from "react";
-import PropTypes from "prop-types";
+import React, { useState, useEffect } from "react";
+// import PropTypes from "prop-types";
 import styled from "@emotion/styled";
+import { legacy_createStore as createStore } from "redux";
+import { Provider, useDispatch, useSelector } from "react-redux";
 import "./App.css";
-import PokemonType from "./PokemonType";
+// import PokemonType from "./PokemonType";
 import PokemonInfo from "./components/PokemonInfo";
 import PokemonFilter from "./components/PokemonFilter";
 import PokemonTable from "./components/PokemonTable";
-import PokemonContext from "./components/PokemonContext";
+// import PokemonContext from "./components/PokemonContext";
 import { CssBaseline } from "@mui/material";
 
-const pokemonReducer = (state, action) => {
-  // eslint-disable-next-line default-case
-  switch (action.type) {
+const pokemonReducer = (
+  state = { pokemon: [], filter: "", selectedItem: null },
+  { type, payload }
+) => {
+  switch (type) {
     case "SET_FILTER":
       return {
         ...state,
-        filter: action.payload,
+        filter: payload,
       };
     case "SET_POKEMON":
       return {
         ...state,
-        pokemon: action.payload,
+        pokemon: payload,
       };
     case "SET_SELECTED_ITEM":
       return {
         ...state,
-        selectedItem: action.payload,
+        selectedItem: payload,
       };
     default:
-      throw new Error("No action");
+      return state;
   }
 };
 
+const store = createStore(pokemonReducer);
 const Title = styled.h1`
   text-align: center;
 `;
@@ -49,14 +54,16 @@ const Container = styled.div`
 `;
 
 function App() {
+  const dispatch = useDispatch();
+  const pokemon = useSelector((state) => state.pokemon);
   // const [filter, setFilter] = useState("");
   // const [pokemon, setPokemon] = useState([]);
   // const [selectedItem, setSelectedItem] = useState(null);
-  const [state, dispatch] = useReducer(pokemonReducer, {
-    pokemon: [],
-    filter: "",
-    selectedItem: null,
-  });
+  // const [state, dispatch] = useReducer(pokemonReducer, {
+  //   pokemon: [],
+  //   filter: "",
+  //   selectedItem: null,
+  // });
 
   useEffect(() => {
     fetch("http://localhost:3000/typescript-react/pokemon.json")
@@ -64,37 +71,28 @@ function App() {
       .then((resData) => dispatch({ type: "SET_POKEMON", payload: resData }));
   }, []);
 
-  if (!state.pokemon) {
+  if (!pokemon) {
     return <div>Loading Data....</div>;
   }
 
   return (
-    <PokemonContext.Provider
-      value={{
-        // filter,
-        // setFilter,
-        // pokemon,
-        // setPokemon,
-        // selectedItem,
-        // setSelectedItem,
-        state,
-        dispatch,
-      }}
-    >
-      <Container>
-        <CssBaseline />
-        <Title>Pokemon Search</Title>
-
-        <TwoColumnLayout>
-          <div>
-            <PokemonFilter />
-            <PokemonTable />
-          </div>
-          <PokemonInfo />
-        </TwoColumnLayout>
-      </Container>
-    </PokemonContext.Provider>
+    <Container>
+      <CssBaseline />
+      <Title>Pokemon Search</Title>
+      <TwoColumnLayout>
+        <div>
+          <PokemonFilter />
+          <PokemonTable />
+        </div>
+        <PokemonInfo />
+      </TwoColumnLayout>
+    </Container>
   );
 }
 
-export default App;
+// eslint-disable-next-line import/no-anonymous-default-export
+export default () => (
+  <Provider store={store}>
+    <App />
+  </Provider>
+);
